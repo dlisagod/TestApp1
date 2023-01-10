@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="400dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp"
+        android:max="100"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Start download"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar" />
+
+    <TextView
+        android:id="@+id/tv_01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="To TestOneActivity"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv" />
+
+    <com.dl.transparentringimageview.widget.second.RingImageView
+        android:id="@+id/iv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="15dp"
+        android:src="@mipmap/icon_collection"
+        app:layout_constraintLeft_toRightOf="@id/iv_01"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_01"
+        app:radius_inner="5dp"
+        app:radius_outer="8dp" />
+
+    <com.dl.transparentringimageview.widget.RingImageView
+        android:id="@+id/iv_01"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="15dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintLeft_toRightOf="@id/myView"
+        app:layout_constraintRight_toLeftOf="@id/iv"
+        app:layout_constraintTop_toBottomOf="@id/tv_01"
+        app:radius_inner="30dp" />
+
+    <com.dl.transparentringimageview.widget.MyView
+        android:id="@+id/myView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/iv_01"
+        app:layout_constraintTop_toTopOf="@id/iv" />
+
+
+    <LinearLayout
+        android:id="@+id/ll_socket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/myView">
+
+        <EditText
+            android:id="@+id/main_edt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/main_tv_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送" />
+
+        <TextView
+            android:id="@+id/main_tv_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="连接" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_collapse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To collapse"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/tv_drawer"
+        app:layout_constraintTop_toBottomOf="@id/ll_socket" />
+
+    <TextView
+        android:id="@+id/tv_drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To drawer"
+        app:layout_constraintLeft_toRightOf="@id/tv_collapse"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_socket" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

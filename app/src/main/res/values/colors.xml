@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+
+    <color name="base_green_primary">#008577</color>
+    <color name="base_green_primary_dark">#00574B</color>
+    <color name="base_green_accent">@color/base_blue_ce</color>
+
+    <color name="base_yellow_primary">#F44336</color>
+    <color name="base_yellow_primary_dark">#DA4212</color>
+    <color name="base_yellow_accent">#FFF3DE52</color>
+
+    <color name="base_white">#FFFFFF</color>
+    <color name="base_black_00">#FF000000</color>
+    <color name="base_black_33">#FF333333</color>
+    <color name="base_black_44">#FF444444</color>
+    <color name="base_black_55">#FF555555</color>
+    <color name="base_black_66">#FF666666</color>
+
+    <!--    <color name="base_green_9f">#ff4444</color>-->
+
+    <color name="base_white_70_translucent">#4DFFFFFF</color>
+    <color name="base_white_90_translucent">#1AFFFFFF</color>
+    <color name="base_black_90_translucent">#1A000000</color>
+    <color name="base_all_translucent">#00000000</color>
+    <!--    <color name="base_select_text">#ff8888</color>-->
+
+    <color name="base_yellow_dark">#26FEEB8C</color>
+    <color name="base_yellow_dark_A3">#77FEEB8C</color>
+    <color name="base_yellow_light">#FFFFDD</color>
+    <color name="base_yellow_8c">#FEEB8C</color>
+    <color name="base_yellow_56">#DEC756</color>
+    <color name="base_orange">#FFE57F</color>
+    <color name="base_orange_38">#FFC338</color>
+    <color name="base_yellow_00">#FFBA00</color>
+    <color name="base_yellow_dark_01">#DF4E00</color>
+    <color name="base_red">#F44336</color>
+    <color name="base_red_00">#FF0000</color>
+    <color name="base_red_29">#E72929</color>
+    <color name="base_red_06">#d81e06</color>
+    <color name="base_red_primary">#820F0A</color>
+    <color name="base_red_61">#FE6161</color>
+
+
+    <color name="base_gray_e2">#E2E2E2</color>
+    <color name="base_gray_85">#858585</color>
+    <color name="base_gray_ee">#EEEEEE</color>
+
+    <!--    <color name="black_33">#333333</color>-->
+    <!--    <color name="black_00">#000000</color>-->
+
+    <!--    <color name="green_9f">#28CB9F</color>-->
+    <color name="base_green_27">#00FF27</color>
+
+    <color name="base_bg_nor_translucent_blue">#020946</color>
+    <color name="base_bg_blue">#BF020946</color>
+    <color name="base_blue_6b">#04166B</color>
+    <color name="base_blue_translucent_946">#80020946</color>
+    <color name="base_blue_85_translucent">#26020946</color>
+    <color name="base_white_78_translucent">#43ffffff</color>
+    <color name="base_blue_6b_60_translucent">#4D04166B</color>
+    <!--50透明-->
+    <!--    <color name="translucent_946">#80020946</color>-->
+    <!--黑色 100%透明-->
+    <!--    <color name="all_translucent">#00000000</color>-->
+    <!--黑色 50%透明-->
+    <color name="base_black_50_translucent">#80000000</color>
+    <color name="base_all_translucent_gray_80">#00808080</color>
+    <color name="base_black_70_translucent">#4D000000</color>
+    <!--白色 10%透明 -->
+    <color name="base_white_10_translucent">#E6ffffff</color>
+    <color name="base_white_50_translucent">#80ffffff</color>
+    <!--    <color name="white_90_translucent">#1AFFFFFF</color>-->
+    <color name="base_white_25_translucent">#BFFFFFFF</color>
+    <color name="base_white_60_translucent">#99FFFFFF</color>
+    <color name="base_white_75_translucent">#40FFFFFF</color>
+    <!--    <color name="white_78_translucent">#43ffffff</color>-->
+    <color name="base_white_100_translucent">#00ffffff</color>
+    <!--    <color name="blue_85_translucent">#26020946</color>-->
+    <color name="base_blue_15_translucent">#D9020946</color>
+    <color name="base_dark_blue_ktv_slide_bar">#1C4B68</color>
+
+    <color name="base_white_38_translucent">#59ffffff</color>
+    <color name="base_light_green">#66FCF2</color>
+    <color name="base_blue_ktv_slide_bg">#8be1dd</color>
+    <!--    <color name="base_blue_ktv_slide_bg">#66FCF2</color>-->
+    <color name="base_blue_ce">#54D6CE</color>
+    <color name="base_green_9f">#28CB9F</color>
+    <color name="base_green_6a">#10826A</color>
+    <color name="base_blue_song">#FF44A7A1</color>
+    <color name="base_blue_ce_translucent">#5954D6CE</color>
+    <color name="base_blue_ktv_full_popup_bg">@color/base_blue_ce</color>
+</resources>

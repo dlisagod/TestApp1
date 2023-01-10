@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".module.viewPager2DynamicTest.TestFragment">
+
+    <ImageView
+        android:id="@+id/test_iv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/test_rcv"
+        android:layout_width="350dp"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/test_iv"
+        android:layout_alignBottom="@id/test_iv"
+        android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:id="@+id/rl_text"
+        android:layout_width="350dp"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/test_iv"
+        android:layout_alignBottom="@id/test_iv"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/test_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="test"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/test_tv_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="15dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/test_tv_03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/test_tv_reverse_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:textSize="18sp"
+        android:text="背景反色" />
+
+
+    <TextView
+        android:id="@+id/test_tv_reverse_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/test_tv_reverse_back"
+        android:paddingHorizontal="10dp"
+        android:textSize="18sp"
+        android:text="列表反色" />
+
+
+</RelativeLayout>

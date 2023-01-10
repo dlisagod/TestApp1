@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="RingImageView">
+        <attr name="radius_inner" format="dimension" />
+        <attr name="radius_outer" format="dimension"/>
+    </declare-styleable>
+
+</resources>

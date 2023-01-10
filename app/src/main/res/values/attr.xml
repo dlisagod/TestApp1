@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DrawerLayout">
+        <attr name="offset_start" format="dimension" />
+    </declare-styleable>
+
+    <attr name="img_test_01" format="reference" />
+
+</resources>

@@ -1,0 +1,8 @@
+include ':mediaplayersample'
+include ':transparentRingImageView'
+include ':downLoad'
+include ':app'
+rootProject.name = "TestApp"
+include ':presentationDemo'
+include ':androidvideocachedemo'
+include ':launcherDemo'

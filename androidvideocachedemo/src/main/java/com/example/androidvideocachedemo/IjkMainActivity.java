@@ -44,7 +44,7 @@ public class IjkMainActivity extends AppCompatActivity {
     IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
     private Surface mSurface;
     private final String[] videos = new String[]{
-            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+            //"https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
             "http://183.6.57.249:8888/music/1090614.MPG",
             "http://183.6.57.249:8888/music/1065799.MPG",
             "http://183.6.57.249:8888/music/1169378.MPG",
@@ -58,7 +58,7 @@ public class IjkMainActivity extends AppCompatActivity {
         checkPermission();
         initSurface();
         initIjkPlayer();
-        initProxy();
+//        initProxy();
         initSpinner();
     }
 
@@ -105,12 +105,12 @@ public class IjkMainActivity extends AppCompatActivity {
      * 初始化MediaPlayer 准备资源完成开始播放
      */
     private void initIjkPlayer() {
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
                 Log.d(getClass().getSimpleName(), "prepared");
-                initTrackSpinner();
+//                initTrackSpinner();
                 iMediaPlayer.start();
             }
         });
@@ -217,8 +217,9 @@ public class IjkMainActivity extends AppCompatActivity {
      * @param url
      */
     private void prepareByProxy(String url) {
-        String proxyUrl = mServer.getProxyUrl(url);
-        prepare(proxyUrl);
+//        String proxyUrl = mServer.getProxyUrl(url);
+//        prepare(proxyUrl);
+        prepare(url);
     }
 
     /**
@@ -229,11 +230,12 @@ public class IjkMainActivity extends AppCompatActivity {
     private void prepare(String url) {
         try {
             ijkMediaPlayer.reset();
-//            ijkMediaPlayer.setDataSource(url);
+            ijkMediaPlayer.setDataSource(url);
 //            ijkMediaPlayer.setDataSource("https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4");
-            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
+//            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
             ijkMediaPlayer.prepareAsync();
         } catch (Exception e) {
+            //todo add log
             e.printStackTrace();
         }
     }
@@ -242,7 +244,7 @@ public class IjkMainActivity extends AppCompatActivity {
     protected void onDestroy() {
         mSurface.release();
         ijkMediaPlayer.release();
-        mServer.shutdown();
+//        mServer.shutdown();
         super.onDestroy();
     }
 }

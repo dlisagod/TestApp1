@@ -124,11 +124,8 @@ class MainActivity : AppCompatActivity() {
             downInfo.baseUrl = baseUrl
             downInfo.url = videoUrl
             downInfo.savePath =
-                FilePathUtil.getLocalVideoPath().absolutePath + File.separator + FilePathUtil.getFileName(
-                    ad
-                )
+                FilePathUtil.getLocalVideoPath().absolutePath + File.separator + FilePathUtil.getFileName(ad)
             HttpDownloadManager.instance?.startDown(downInfo)
-
         }
 //        tv.text = null
 

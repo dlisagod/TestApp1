@@ -13,15 +13,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         vb = ActivityMainBinding.inflate(layoutInflater)
         setContentView(vb.root)
+        init()
+    }
+
+    private fun init() {
         adapter = AppAdapter(this)
         vb.rv.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 5)
             adapter = this@MainActivity.adapter
         }
-        init()
-    }
-
-    private fun init() {
         ResolvestoPackage().also {
 //        InstalledPackagesToPackages().also {
             Log.d("Main", "installed packages size ${it.size}")
@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
             adapter.setNewData(it)
         }
 //        packageManager.getInstalledApplications(0)
-
     }
 
 //    for (int i = 0; i < packlist.size(); i++) {
@@ -42,4 +41,8 @@ class MainActivity : AppCompatActivity() {
 //        }
 //        apps.add(pak);
 //    }
+
+    override fun onBackPressed() {
+//        super.onBackPressed()
+    }
 }

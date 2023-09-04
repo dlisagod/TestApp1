@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.TextureMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IjkTrackInfo;
 
 /**
@@ -40,6 +43,7 @@ import tv.danmaku.ijk.media.player.misc.IjkTrackInfo;
  * @description
  **/
 public class IjkMainActivity extends AppCompatActivity {
+    String tag = "IjkMainActivity";
 
     IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
     private Surface mSurface;
@@ -56,8 +60,9 @@ public class IjkMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
         checkPermission();
-        initSurface();
+        initSurfaceTexture();
         initIjkPlayer();
+//        initSurface2();
         initProxy();
         initSpinner();
     }
@@ -105,13 +110,43 @@ public class IjkMainActivity extends AppCompatActivity {
      * 初始化MediaPlayer 准备资源完成开始播放
      */
     private void initIjkPlayer() {
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
+//        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
-                Log.d(getClass().getSimpleName(), "prepared");
+                Log.d(tag, "prepared");
                 initTrackSpinner();
-                iMediaPlayer.start();
+//                initSurface2();
+                ijkMediaPlayer.start();
+            }
+        });
+    }
+
+
+    private void initSurface2() {
+        TextureView mTextureView = findViewById(R.id.tv);
+        mTextureView.setVisibility(View.GONE);
+        SurfaceView sv = findViewById(R.id.sv);
+        sv.setVisibility(View.VISIBLE);
+        sv.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d(tag, "surfaceCreated");
+//                ijkMediaPlayer.setDisplay(holder);
+                ijkMediaPlayer.setSurface(holder.getSurface());
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d(tag, "surfaceChanged");
+//                ijkMediaPlayer.setDisplay(holder);
+                ijkMediaPlayer.setSurface(holder.getSurface());
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d(tag, "surfaceDestroyed");
+                ijkMediaPlayer.setDisplay(null);
             }
         });
     }
@@ -119,11 +154,15 @@ public class IjkMainActivity extends AppCompatActivity {
     /**
      * 初始化画面层
      */
-    private void initSurface() {
+    private void initSurfaceTexture() {
+        SurfaceView sv = findViewById(R.id.sv);
+        sv.setVisibility(View.GONE);
         TextureView mTextureView = findViewById(R.id.tv);
+        mTextureView.setVisibility(View.VISIBLE);
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                Log.d(tag, "onSurfaceTextureAvailable");
                 mSurface = new Surface(surface);
                 ijkMediaPlayer.setSurface(mSurface);
             }
@@ -141,6 +180,12 @@ public class IjkMainActivity extends AppCompatActivity {
             public void onSurfaceTextureUpdated(SurfaceTexture surface) {
 //                mSurface = new Surface(surface);
 //                ijkMediaPlayer.setSurface(mSurface);
+                Log.d(tag, "onSurfaceTextureUpdated");
+                if (mSurface != null) {
+                    mSurface.release();
+                }
+                mSurface = new Surface(surface);
+                ijkMediaPlayer.setSurface(mSurface);
             }
         });
     }
@@ -200,7 +245,8 @@ public class IjkMainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ijkMediaPlayer.selectTrack(soundTracks.get(position).idx);
+//                ijkMediaPlayer.selectTrack(soundTracks.get(position).idx);
+//                ijkMediaPlayer.
             }
 
             @Override
@@ -219,6 +265,7 @@ public class IjkMainActivity extends AppCompatActivity {
     private void prepareByProxy(String url) {
         String proxyUrl = mServer.getProxyUrl(url);
         prepare(proxyUrl);
+//        prepare(url);
     }
 
     /**
@@ -229,9 +276,11 @@ public class IjkMainActivity extends AppCompatActivity {
     private void prepare(String url) {
         try {
             ijkMediaPlayer.reset();
-//            ijkMediaPlayer.setDataSource(url);
+            ijkMediaPlayer.setDataSource(url);
 //            ijkMediaPlayer.setDataSource("https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4");
-            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
+//            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
+//            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1109745.MPG");
+//            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1109745.MPG");
             ijkMediaPlayer.prepareAsync();
         } catch (Exception e) {
             e.printStackTrace();
@@ -244,5 +293,6 @@ public class IjkMainActivity extends AppCompatActivity {
         ijkMediaPlayer.release();
         mServer.shutdown();
         super.onDestroy();
+        //todo sth
     }
 }

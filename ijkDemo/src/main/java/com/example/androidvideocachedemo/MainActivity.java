@@ -1,12 +1,16 @@
 package com.example.androidvideocachedemo;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,10 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import tv.danmaku.ijk.media.player.IMediaPlayer;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
-import tv.danmaku.ijk.media.player.widget.media.IjkVideoView;
-
 /**
  * @create zhl
  * @date 2022/4/6 11:18
@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     MediaPlayer mediaPlayer = new MediaPlayer();
     private Surface mSurface;
     private final String[] videos = new String[]{
+            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+            IjkVideoViewActKt.getFileM3u8_2(),
+            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
             "http://183.6.57.249:8888/music/1090614.MPG",
             "http://183.6.57.249:8888/music/1065799.MPG",
             "http://183.6.57.249:8888/music/1169378.MPG",
@@ -58,6 +61,23 @@ public class MainActivity extends AppCompatActivity {
         initMediaPlayer();
         initProxy();
         initSpinner();
+        initClick();
+    }
+
+
+    private void initClick() {
+        findViewById(R.id.btn_1).setOnClickListener(v -> {
+            startActivity(new Intent(this, IjkMainActivity.class));
+        });
+        findViewById(R.id.btn_2).setOnClickListener(v -> {
+            startActivity(new Intent(this, IjkVideoViewAct.class));
+        });
+        findViewById(R.id.btn_play).setOnClickListener(v -> {
+            if (!prepared) return;
+            if (mediaPlayer.isPlaying()) mediaPlayer.pause();
+            else mediaPlayer.start();
+//            }
+        });
     }
 
     private void checkPermission() {
@@ -105,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                prepared = true;
                 initTrackSpinner();
                 mp.start();
             }
@@ -116,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initSurface() {
         TextureView mTextureView = findViewById(R.id.tv);
+        mTextureView.setVisibility(View.VISIBLE);
+        SurfaceView sv = findViewById(R.id.sv);
+        sv.setVisibility(View.GONE);
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -140,6 +164,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private String tag = MainActivity.class.getSimpleName();
+
+    private void initSurface2() {
+        TextureView mTextureView = findViewById(R.id.tv);
+        mTextureView.setVisibility(View.GONE);
+        SurfaceView sv = findViewById(R.id.sv);
+        sv.setVisibility(View.VISIBLE);
+        sv.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d(tag, "surfaceCreated");
+//                ijkMediaPlayer.setDisplay(holder);
+                mediaPlayer.setSurface(holder.getSurface());
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d(tag, "surfaceChanged");
+//                ijkMediaPlayer.setDisplay(holder);
+                mediaPlayer.setSurface(holder.getSurface());
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d(tag, "surfaceDestroyed");
+                mediaPlayer.setDisplay(null);
+            }
+        });
+    }
+
     /**
      * 初始化下拉选单
      */
@@ -150,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = videos[position];
-//                prepare(url);
-                prepareByProxy(url);
+                prepare(url);
+//                prepareByProxy(url);
             }
 
             @Override
@@ -221,7 +275,10 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param url
      */
+    private boolean prepared = false;
+
     private void prepare(String url) {
+        prepared = false;
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(url);
@@ -229,6 +286,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (prepared) mediaPlayer.pause();
     }
 
     @Override

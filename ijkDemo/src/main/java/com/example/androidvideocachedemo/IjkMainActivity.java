@@ -1,10 +1,11 @@
 package com.example.androidvideocachedemo;
 
+
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -34,6 +35,7 @@ import java.util.List;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IjkTrackInfo;
+import tv.danmaku.ijk.media.player.widget.media.SurfaceRenderView;
 
 /**
  * @create zhl
@@ -49,7 +51,9 @@ public class IjkMainActivity extends AppCompatActivity {
     IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
     private Surface mSurface;
     private final String[] videos = new String[]{
+            IjkVideoViewActKt.getFileM3u8_2(),
             "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
             "http://183.6.57.249:8888/music/1090614.MPG",
             "http://183.6.57.249:8888/music/1065799.MPG",
             "http://183.6.57.249:8888/music/1169378.MPG",
@@ -72,10 +76,9 @@ public class IjkMainActivity extends AppCompatActivity {
     }
 
     private void initClick() {
-        findViewById(R.id.btn).setOnClickListener(v -> {
-            startActivity(new Intent(this, IjkVideoViewAct.class));
-        });
-        findViewById(R.id.btn_1).setOnClickListener(v -> {
+        findViewById(R.id.btn_1).setVisibility(View.GONE);
+        findViewById(R.id.btn_2).setVisibility(View.GONE);
+        findViewById(R.id.btn_play).setOnClickListener(v -> {
 //            if (prepared) {
             if (ijkMediaPlayer.isPlaying()) ijkMediaPlayer.pause();
             else if (ijkMediaPlayer.isPlayable()) ijkMediaPlayer.start();
@@ -142,10 +145,12 @@ public class IjkMainActivity extends AppCompatActivity {
 
     private void initIjkPlayer() {
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
-//        IjkUtil.initIjk(ijkMediaPlayer);
+        IjkUtil.initIjk3(ijkMediaPlayer);
+//        ijkMediaPlayer.setSpeed(2);
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
+//                ijkMediaPlayer.setSpeed(2);
                 Log.d(tag, "prepared");
                 prepared = true;
                 initTrackSpinner();
@@ -182,6 +187,16 @@ public class IjkMainActivity extends AppCompatActivity {
                 ijkMediaPlayer.setDisplay(null);
             }
         });
+    }
+
+    private void initSurfaceRender() {
+        TextureView mTextureView = findViewById(R.id.tv);
+        mTextureView.setVisibility(View.GONE);
+        SurfaceView sv = findViewById(R.id.sv);
+        sv.setVisibility(View.GONE);
+        SurfaceRenderView srv = findViewById(R.id.srv);
+        srv.setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -233,8 +248,8 @@ public class IjkMainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = videos[position];
-//                prepare(url);
-                prepareByProxy(url);
+                prepare(url);
+//                prepareByProxy(url);
             }
 
             @Override
@@ -304,9 +319,9 @@ public class IjkMainActivity extends AppCompatActivity {
      * @param url
      */
     private void prepareByProxy(String url) {
-//        String proxyUrl = mServer.getProxyUrl(url);
-//        prepare(proxyUrl);
-        prepare(url);
+        String proxyUrl = mServer.getProxyUrl(url);
+        prepare(proxyUrl);
+//        prepare(url);
     }
 
     /**
@@ -318,7 +333,10 @@ public class IjkMainActivity extends AppCompatActivity {
         prepared = false;
         try {
             ijkMediaPlayer.reset();
-            ijkMediaPlayer.setDataSource(url);
+            if (url == IjkVideoViewActKt.getFileM3u8_2()) {
+                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
+            } else
+                ijkMediaPlayer.setDataSource(url);
 //            ijkMediaPlayer.setDataSource("https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4");
 //            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
 //            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1109745.MPG");

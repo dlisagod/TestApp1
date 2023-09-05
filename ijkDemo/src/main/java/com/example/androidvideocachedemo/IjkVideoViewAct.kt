@@ -3,6 +3,7 @@ package com.example.androidvideocachedemo
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -24,10 +25,16 @@ import tv.danmaku.ijk.media.player.widget.media.AndroidMediaController
  * @date
  * @description
  **/
+val fileM3u8 = Environment.getExternalStorageDirectory().absolutePath + "/download/test/910453.m3u8"
+val fileM3u8_2 = Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.m3u8"
+
 class IjkVideoViewAct : AppCompatActivity() {
     val TAG = "IjkVideoViewAct"
     private val videos = arrayOf(
         "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+//        fileM3u8,
+        fileM3u8_2,
+        "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
         "http://183.6.57.249:8888/music/1090614.MPG",
         "http://183.6.57.249:8888/music/1065799.MPG",
         "http://183.6.57.249:8888/music/1169378.MPG",
@@ -45,8 +52,8 @@ class IjkVideoViewAct : AppCompatActivity() {
 
     private fun initVideoView() {
         vb.videoView.apply {
-//            setMediaController(AndroidMediaController(this@IjkVideoViewAct, false))
-//            setHudView(vb.hudView)
+            setMediaController(AndroidMediaController(this@IjkVideoViewAct, false))
+            setHudView(vb.hudView)
             setOnPreparedListener {
                 Log.d(TAG, "prepare")
                 initTrackSpinner()

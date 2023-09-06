@@ -5,9 +5,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -17,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -24,17 +23,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.danikula.videocache.HttpProxyCacheServer;
-import com.danikula.videocache.file.FileNameGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IjkTrackInfo;
+import tv.danmaku.ijk.media.player.widget.media.IRenderView;
+import tv.danmaku.ijk.media.player.widget.media.IjkUtil;
 import tv.danmaku.ijk.media.player.widget.media.SurfaceRenderView;
 
 /**
@@ -50,32 +49,41 @@ public class IjkMainActivity extends AppCompatActivity {
 
     IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
     private Surface mSurface;
-    private final String[] videos = new String[]{
-            IjkVideoViewActKt.getFileM3u8_2(),
-            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
-            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
-            "http://183.6.57.249:8888/music/1090614.MPG",
-            "http://183.6.57.249:8888/music/1065799.MPG",
-            "http://183.6.57.249:8888/music/1169378.MPG",
-            "http://183.6.57.249:8888/music/1094665.MPG"
-    };
+    //    private final String[] videos = new String[]{
+//            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+//            IjkVideoViewActKt.getFileMpgEnc(),
+//            IjkVideoViewActKt.getFileM3u8(),
+//            IjkVideoViewActKt.getFileM3u8_1(),
+//            IjkVideoViewActKt.getFileM3u8_2(),
+//            "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
+//            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
+//            "http://183.6.57.249:8888/music/1090614.MPG",
+//            "http://183.6.57.249:8888/music/1065799.MPG",
+//            "http://183.6.57.249:8888/music/1169378.MPG",
+//            "http://183.6.57.249:8888/music/1094665.MPG"
+//    };
+    private final String[] videos = IjkVideoViewActKt.getVideos();
     HttpProxyCacheServer mServer;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
         checkPermission();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 //        initSurfaceTexture();
-        initSurface2();
-        initIjkPlayer();
+//        initSurface2();
+        initSurfaceRender();
+//        initIjkPlayer();
         initProxy();
         initSpinner();
         initClick();
+        checkProxyEnable();
     }
 
     private void initClick() {
+        findViewById(R.id.btn_3).setOnClickListener(v -> {
+            changeProxyEnable();
+        });
         findViewById(R.id.btn_1).setVisibility(View.GONE);
         findViewById(R.id.btn_2).setVisibility(View.GONE);
         findViewById(R.id.btn_play).setOnClickListener(v -> {
@@ -84,6 +92,20 @@ public class IjkMainActivity extends AppCompatActivity {
             else if (ijkMediaPlayer.isPlayable()) ijkMediaPlayer.start();
 //            }
         });
+    }
+
+    private void changeProxyEnable() {
+        ProxyCacheServer.INSTANCE.setEnable(!ProxyCacheServer.INSTANCE.getEnable());
+        checkProxyEnable();
+    }
+
+    private boolean enable = ProxyCacheServer.INSTANCE.getEnable();
+
+    private void checkProxyEnable() {
+        Button btn = findViewById(R.id.btn_3);
+        enable = ProxyCacheServer.INSTANCE.getEnable();
+        if (enable) btn.setText("代理已开启");
+        else btn.setText("代理已关闭");
     }
 
     private void checkPermission() {
@@ -107,22 +129,7 @@ public class IjkMainActivity extends AppCompatActivity {
      * 初始化边下边播的代理缓存
      */
     private void initProxy() {
-        //缓存目录
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/test";
-        File file = new File(path);
-        if (!file.exists()) file.mkdir();
-        mServer = new HttpProxyCacheServer
-                .Builder(this)
-                .cacheDirectory(file)
-                .fileNameGenerator(new FileNameGenerator() {
-                    @Override
-                    public String generate(String url) {
-                        //文件名
-                        String[] s = url.split("/");
-                        return s[s.length - 1];
-                    }
-                })
-                .build();
+        mServer = ProxyCacheServer.INSTANCE.getNewCacheServer(this);
     }
 
     @Override
@@ -146,16 +153,21 @@ public class IjkMainActivity extends AppCompatActivity {
     private void initIjkPlayer() {
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
         IjkUtil.initIjk3(ijkMediaPlayer);
+        if (mHolder != null) {
+            mHolder.bindToMediaPlayer(ijkMediaPlayer);
+        }
 //        ijkMediaPlayer.setSpeed(2);
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
+//                IjkUtil.initIjk3(ijkMediaPlayer);
 //                ijkMediaPlayer.setSpeed(2);
                 Log.d(tag, "prepared");
                 prepared = true;
                 initTrackSpinner();
 //                initSurface2();
-//                ijkMediaPlayer.start();
+                ijkMediaPlayer.start();
+
             }
         });
     }
@@ -189,6 +201,8 @@ public class IjkMainActivity extends AppCompatActivity {
         });
     }
 
+    private IRenderView.ISurfaceHolder mHolder;
+
     private void initSurfaceRender() {
         TextureView mTextureView = findViewById(R.id.tv);
         mTextureView.setVisibility(View.GONE);
@@ -196,7 +210,25 @@ public class IjkMainActivity extends AppCompatActivity {
         sv.setVisibility(View.GONE);
         SurfaceRenderView srv = findViewById(R.id.srv);
         srv.setVisibility(View.VISIBLE);
+        srv.addRenderCallback(new IRenderView.IRenderCallback() {
+            @Override
+            public void onSurfaceCreated(IRenderView.ISurfaceHolder holder, int width, int height) {
+                mHolder = holder;
+                holder.bindToMediaPlayer(ijkMediaPlayer);
+            }
 
+            @Override
+            public void onSurfaceChanged(IRenderView.ISurfaceHolder holder, int format, int width, int height) {
+                mHolder = holder;
+                holder.bindToMediaPlayer(ijkMediaPlayer);
+            }
+
+            @Override
+            public void onSurfaceDestroyed(IRenderView.ISurfaceHolder holder) {
+                mHolder = null;
+                holder.bindToMediaPlayer(null);
+            }
+        });
     }
 
     /**
@@ -248,8 +280,8 @@ public class IjkMainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = videos[position];
-                prepare(url);
-//                prepareByProxy(url);
+                if (enable) prepareByProxy(url);
+                else prepare(url);
             }
 
             @Override
@@ -333,10 +365,23 @@ public class IjkMainActivity extends AppCompatActivity {
         prepared = false;
         try {
             ijkMediaPlayer.reset();
-            if (url == IjkVideoViewActKt.getFileM3u8_2()) {
-                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
-            } else
-                ijkMediaPlayer.setDataSource(url);
+            initIjkPlayer();
+            if (url == IjkVideoViewActKt.getFileM3u8()) {
+//                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
+                if (ProxyCacheServer.INSTANCE.getMServer() == null) {
+                    ProxyCacheServer.INSTANCE.initProxy(this);
+                }
+                ProxyCacheServer.INSTANCE.preCacheKey();
+//                String urlKey = mServer.getProxyUrl(ProxyCacheServer.INSTANCE.getKeyUrl());
+//                Log.d(tag, "proxy urlKey:" + urlKey);
+            }
+            if (url == IjkVideoViewActKt.getFileMpgEnc()) {
+                ijkMediaPlayer.setDataSource(new DescryFileMediaSource(url));
+                ijkMediaPlayer.prepareAsync();
+                return;
+            }
+//            else
+            ijkMediaPlayer.setDataSource(url);
 //            ijkMediaPlayer.setDataSource("https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4");
 //            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1090614.MPG");
 //            ijkMediaPlayer.setDataSource("http://183.6.57.249:8888/music/1109745.MPG");

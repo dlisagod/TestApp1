@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -15,6 +14,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -22,11 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.danikula.videocache.HttpProxyCacheServer;
-import com.danikula.videocache.file.FileNameGenerator;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,18 +37,21 @@ import java.util.List;
  * @description
  **/
 public class MainActivity extends AppCompatActivity {
-
     MediaPlayer mediaPlayer = new MediaPlayer();
     private Surface mSurface;
-    private final String[] videos = new String[]{
-            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
-            IjkVideoViewActKt.getFileM3u8_2(),
-            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
-            "http://183.6.57.249:8888/music/1090614.MPG",
-            "http://183.6.57.249:8888/music/1065799.MPG",
-            "http://183.6.57.249:8888/music/1169378.MPG",
-            "http://183.6.57.249:8888/music/1094665.MPG"
-    };
+    //    private final String[] videos = new String[]{
+//            "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+//            IjkVideoViewActKt.getFileM3u8(),
+//            IjkVideoViewActKt.getFileM3u8_1(),
+//            IjkVideoViewActKt.getFileM3u8_2(),
+//            "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
+//            "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
+//            "http://183.6.57.249:8888/music/1090614.MPG",
+//            "http://183.6.57.249:8888/music/1065799.MPG",
+//            "http://183.6.57.249:8888/music/1169378.MPG",
+//            "http://183.6.57.249:8888/music/1094665.MPG"
+//    };
+    private final String[] videos = IjkVideoViewActKt.getVideos();
     HttpProxyCacheServer mServer;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,10 +63,14 @@ public class MainActivity extends AppCompatActivity {
         initProxy();
         initSpinner();
         initClick();
+        checkProxyEnable();
     }
 
 
     private void initClick() {
+        findViewById(R.id.btn_3).setOnClickListener(v -> {
+            changeProxyEnable();
+        });
         findViewById(R.id.btn_1).setOnClickListener(v -> {
             startActivity(new Intent(this, IjkMainActivity.class));
         });
@@ -78,6 +83,20 @@ public class MainActivity extends AppCompatActivity {
             else mediaPlayer.start();
 //            }
         });
+    }
+
+    private void changeProxyEnable() {
+        ProxyCacheServer.INSTANCE.setEnable(!ProxyCacheServer.INSTANCE.getEnable());
+        checkProxyEnable();
+    }
+
+    private boolean enable = ProxyCacheServer.INSTANCE.getEnable();
+
+    private void checkProxyEnable() {
+        Button btn = findViewById(R.id.btn_3);
+        enable = ProxyCacheServer.INSTANCE.getEnable();
+        if (enable) btn.setText("代理已开启");
+        else btn.setText("代理已关闭");
     }
 
     private void checkPermission() {
@@ -101,21 +120,7 @@ public class MainActivity extends AppCompatActivity {
      * 初始化边下边播的代理缓存
      */
     private void initProxy() {
-        //缓存目录
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/test";
-        File file = new File(path);
-        mServer = new HttpProxyCacheServer
-                .Builder(this)
-                .cacheDirectory(file)
-                .fileNameGenerator(new FileNameGenerator() {
-                    @Override
-                    public String generate(String url) {
-                        //文件名
-                        String[] s = url.split("/");
-                        return s[s.length - 1];
-                    }
-                })
-                .build();
+        mServer = ProxyCacheServer.INSTANCE.getNewCacheServer(this);
     }
 
     /**
@@ -204,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = videos[position];
-                prepare(url);
-//                prepareByProxy(url);
+                if (enable) prepareByProxy(url);
+                else prepare(url);
             }
 
             @Override

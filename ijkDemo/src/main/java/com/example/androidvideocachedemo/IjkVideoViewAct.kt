@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.danikula.videocache.HttpProxyCacheServer
 import com.example.androidvideocachedemo.databinding.ActIjkVideoViewBinding
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
@@ -25,27 +26,47 @@ import tv.danmaku.ijk.media.player.widget.media.AndroidMediaController
  * @date
  * @description
  **/
-val fileM3u8 = Environment.getExternalStorageDirectory().absolutePath + "/download/test/910453.m3u8"
-val fileM3u8_2 = Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.m3u8"
+val fileMpgEnc = Environment.getExternalStorageDirectory().absolutePath + "/download/910453(1).mpg"
+val fileM3u8 =
+    Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.m3u8"
+val fileM3u8_1 =
+    Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.1.m3u8"
 
+ val videos = arrayOf(
+    "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+    fileMpgEnc,
+    fileM3u8,
+    fileM3u8_1,
+    "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
+    "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
+    "http://183.6.57.249:8888/music/1090614.MPG",
+    "http://183.6.57.249:8888/music/1065799.MPG",
+    "http://183.6.57.249:8888/music/1169378.MPG",
+    "http://183.6.57.249:8888/music/1094665.MPG"
+)
 class IjkVideoViewAct : AppCompatActivity() {
     val TAG = "IjkVideoViewAct"
-    private val videos = arrayOf(
-        "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+//    private val videos = arrayOf(
+//        "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
+//        fileMpgEnc,
 //        fileM3u8,
-        fileM3u8_2,
-        "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
-        "http://183.6.57.249:8888/music/1090614.MPG",
-        "http://183.6.57.249:8888/music/1065799.MPG",
-        "http://183.6.57.249:8888/music/1169378.MPG",
-        "http://183.6.57.249:8888/music/1094665.MPG"
-    )
+//        fileM3u8_1,
+//        fileM3u8_2,
+//        "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
+//        "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
+//        "http://183.6.57.249:8888/music/1090614.MPG",
+//        "http://183.6.57.249:8888/music/1065799.MPG",
+//        "http://183.6.57.249:8888/music/1169378.MPG",
+//        "http://183.6.57.249:8888/music/1094665.MPG"
+//    )
+    private var mServer: HttpProxyCacheServer? = null
     private lateinit var vb: ActIjkVideoViewBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vb = ActIjkVideoViewBinding.inflate(layoutInflater)
         setContentView(vb.root)
         checkPermission()
+        initProxy()
         initVideoView()
         initSpinner()
     }
@@ -69,6 +90,10 @@ class IjkVideoViewAct : AppCompatActivity() {
             )
             ActivityCompat.requestPermissions(this, permissions, 10086)
         }
+    }
+
+    fun initProxy() {
+        mServer = ProxyCacheServer.getNewCacheServer(this)
     }
 
     override fun onRequestPermissionsResult(
@@ -96,7 +121,7 @@ class IjkVideoViewAct : AppCompatActivity() {
                 id: Long
             ) {
                 val url = videos[position]
-                //                prepare(url);
+//                prepareByProxy(url);
                 prepare(url)
             }
 
@@ -167,8 +192,22 @@ class IjkVideoViewAct : AppCompatActivity() {
         return list
     }
 
+    /**
+     * 使用代理地址准备资源
+     *
+     * @param url
+     */
+    private fun prepareByProxy(url: String) {
+        val proxyUrl = mServer!!.getProxyUrl(url)
+        prepare(proxyUrl)
+    }
+
 
     private fun prepare(url: String) {
+        if (url == fileMpgEnc) {
+            vb.videoView.setVideoMediaDataSource(DescryFileMediaSource(url))
+            return
+        }
         vb.videoView.setVideoPath(url)
 //        vb.videoView
 //        vb.videoView.
@@ -192,5 +231,10 @@ class IjkVideoViewAct : AppCompatActivity() {
             vb.videoView.enterBackground()
         }
         IjkMediaPlayer.native_profileEnd()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mServer?.shutdown()
     }
 }

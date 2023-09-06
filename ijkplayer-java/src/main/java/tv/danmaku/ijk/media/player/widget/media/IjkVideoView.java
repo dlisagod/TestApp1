@@ -281,6 +281,19 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private void setVideoURI(Uri uri, Map<String, String> headers) {
         mUri = uri;
         mHeaders = headers;
+        mediaDataSource = null;
+        mSeekWhenPrepared = 0;
+        openVideo();
+        requestLayout();
+        invalidate();
+    }
+
+    private IMediaDataSource mediaDataSource = null;
+
+    public void setVideoMediaDataSource(IMediaDataSource mediaDataSource) {
+        mUri = null;
+        mHeaders = null;
+        this.mediaDataSource = mediaDataSource;
         mSeekWhenPrepared = 0;
         openVideo();
         requestLayout();
@@ -306,7 +319,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
     @TargetApi(Build.VERSION_CODES.M)
     private void openVideo() {
-        if (mUri == null || mSurfaceHolder == null) {
+        if (mUri == null && mediaDataSource == null || mSurfaceHolder == null) {
             // not ready for playback just yet, will try again later
             return;
         }
@@ -335,16 +348,21 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             mMediaPlayer.setOnSeekCompleteListener(mSeekCompleteListener);
             mMediaPlayer.setOnTimedTextListener(mOnTimedTextListener);
             mCurrentBufferPercentage = 0;
-            String scheme = mUri.getScheme();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                    mSettings.getUsingMediaDataSource() &&
-                    (TextUtils.isEmpty(scheme) || scheme.equalsIgnoreCase("file"))) {
-                IMediaDataSource dataSource = new FileMediaDataSource(new File(mUri.toString()));
-                mMediaPlayer.setDataSource(dataSource);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                mMediaPlayer.setDataSource(mAppContext, mUri, mHeaders);
-            } else {
-                mMediaPlayer.setDataSource(mUri.toString());
+            if (mUri != null) {
+                String scheme = mUri.getScheme();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                        mSettings.getUsingMediaDataSource() &&
+                        (TextUtils.isEmpty(scheme) || scheme.equalsIgnoreCase("file"))) {
+                    IMediaDataSource dataSource = new FileMediaDataSource(new File(mUri.toString()));
+                    mMediaPlayer.setDataSource(dataSource);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    mMediaPlayer.setDataSource(mAppContext, mUri, mHeaders);
+                } else {
+                    mMediaPlayer.setDataSource(mUri.toString());
+                }
+            }
+            if (mediaDataSource != null) {
+                mMediaPlayer.setDataSource(mediaDataSource);
             }
             bindSurfaceHolder(mMediaPlayer, mSurfaceHolder);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -1082,6 +1100,11 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "allowed_extensions", "ALL");
+                }
+                if (mediaDataSource != null) {
+                    ijkMediaPlayer = new IjkMediaPlayer();
+                    IjkUtil.initIjk3(ijkMediaPlayer);
                 }
                 mediaPlayer = ijkMediaPlayer;
             }

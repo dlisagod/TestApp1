@@ -31,12 +31,21 @@ val fileM3u8 =
     Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.m3u8"
 val fileM3u8_1 =
     Environment.getExternalStorageDirectory().absolutePath + "/download/910453/910453.1.m3u8"
-
- val videos = arrayOf(
+val fileM3u8_2 =
+    Environment.getExternalStorageDirectory().absolutePath + "/download/910453.1.m3u8"
+val fileM3u8_3 =
+    Environment.getExternalStorageDirectory().absolutePath + "/download/910453.应用数据路径.m3u8"
+val fileM3u8_4 = "/data/data/com.example.ijkdemo3/cache/910453.应用数据路径.m3u8"
+val fileM3u8_5 = "/data/data/com.example.ijkdemo3/cache/910453.nokey.m3u8"
+val videos = arrayOf(
     "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
     fileMpgEnc,
     fileM3u8,
     fileM3u8_1,
+    fileM3u8_2,
+    fileM3u8_3,
+    fileM3u8_4,
+    fileM3u8_5,
     "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
     "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
     "http://183.6.57.249:8888/music/1090614.MPG",
@@ -44,9 +53,11 @@ val fileM3u8_1 =
     "http://183.6.57.249:8888/music/1169378.MPG",
     "http://183.6.57.249:8888/music/1094665.MPG"
 )
+
 class IjkVideoViewAct : AppCompatActivity() {
     val TAG = "IjkVideoViewAct"
-//    private val videos = arrayOf(
+
+    //    private val videos = arrayOf(
 //        "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
 //        fileMpgEnc,
 //        fileM3u8,

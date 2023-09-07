@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.danikula.videocache.HttpProxyCacheServer;
+import com.danikula.videocache.M3u8ProxyUtil;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -58,12 +59,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
         checkPermission();
-        initSurface();
+        initSurface2();
         initMediaPlayer();
         initProxy();
         initSpinner();
         initClick();
         checkProxyEnable();
+        testM3u8();
+    }
+
+    private void testM3u8(){
+        M3u8Util m3u8Util =  M3u8Util.INSTANCE;
+        m3u8Util.init(this);
+        m3u8Util.generateM3u8File(m3u8Util.getTestM3u8NoKey());
     }
 
 
@@ -286,6 +294,11 @@ public class MainActivity extends AppCompatActivity {
         prepared = false;
         try {
             mediaPlayer.reset();
+            if (url == IjkVideoViewActKt.getFileMpgEnc()) {
+                mediaPlayer.setDataSource(new DescryFileMediaSource(url));
+                mediaPlayer.prepareAsync();
+                return;
+            }
             mediaPlayer.setDataSource(url);
             mediaPlayer.prepareAsync();
         } catch (Exception e) {

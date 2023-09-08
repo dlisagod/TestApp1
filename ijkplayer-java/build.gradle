@@ -27,4 +27,4 @@ dependencies {
 //    implementation 'androidx.annotation:annotation-jvm:'
 }
 
-apply from: new File(rootProject.projectDir, "tools/gradle-on-demand.gradle");
+//apply from: new File(rootProject.projectDir, "tools/gradle-on-demand.gradle")

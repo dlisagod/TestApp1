@@ -2,6 +2,7 @@ package com.example.androidvideocachedemo;
 
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -73,19 +75,28 @@ public class IjkMainActivity extends AppCompatActivity {
 //        initSurfaceTexture();
 //        initSurface2();
         initSurfaceRender();
-//        initIjkPlayer();
+        initIjkPlayer();
         initProxy();
         initSpinner();
         initClick();
         checkProxyEnable();
     }
 
+    private FrameLayout fl;
+
     private void initClick() {
+        fl = findViewById(R.id.fl);
         findViewById(R.id.btn_3).setOnClickListener(v -> {
             changeProxyEnable();
         });
-        findViewById(R.id.btn_1).setVisibility(View.GONE);
-        findViewById(R.id.btn_2).setVisibility(View.GONE);
+        Button btn1 = findViewById(R.id.btn_1);
+        btn1.setText("悬浮显示");
+        btn1.setOnClickListener(v -> {
+            showOrHideFloatSrv();
+        });
+        findViewById(R.id.btn_2).setOnClickListener(v -> {
+            startActivity(new Intent(this, IjkVideoViewAct.class));
+        });
         findViewById(R.id.btn_play).setOnClickListener(v -> {
 //            if (prepared) {
             if (ijkMediaPlayer.isPlaying()) ijkMediaPlayer.pause();
@@ -135,7 +146,7 @@ public class IjkMainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ijkMediaPlayer.pause();
+        if (!showFloat) ijkMediaPlayer.pause();
     }
 
     @Override
@@ -152,10 +163,10 @@ public class IjkMainActivity extends AppCompatActivity {
 
     private void initIjkPlayer() {
 //        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
-        IjkUtil.initIjk3(ijkMediaPlayer);
-        if (mHolder != null) {
-            mHolder.bindToMediaPlayer(ijkMediaPlayer);
-        }
+//        IjkUtil.initIjk3(ijkMediaPlayer);
+//        if (mHolder != null) {
+//            mHolder.bindToMediaPlayer(ijkMediaPlayer);
+//        }
 //        ijkMediaPlayer.setSpeed(2);
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
@@ -171,7 +182,6 @@ public class IjkMainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void initSurface2() {
         TextureView mTextureView = findViewById(R.id.tv);
@@ -203,12 +213,14 @@ public class IjkMainActivity extends AppCompatActivity {
 
     private IRenderView.ISurfaceHolder mHolder;
 
+    SurfaceRenderView srv;
+
     private void initSurfaceRender() {
         TextureView mTextureView = findViewById(R.id.tv);
         mTextureView.setVisibility(View.GONE);
         SurfaceView sv = findViewById(R.id.sv);
         sv.setVisibility(View.GONE);
-        SurfaceRenderView srv = findViewById(R.id.srv);
+        srv = findViewById(R.id.srv);
         srv.setVisibility(View.VISIBLE);
         srv.addRenderCallback(new IRenderView.IRenderCallback() {
             @Override
@@ -229,6 +241,25 @@ public class IjkMainActivity extends AppCompatActivity {
                 holder.bindToMediaPlayer(null);
             }
         });
+    }
+
+    private boolean showFloat = false;
+
+    private void showOrHideFloatSrv() {
+        if (showFloat) closeFloatSrv();
+        else showFloatSrv();
+    }
+
+    private void showFloatSrv() {
+        showFloat = true;
+        fl.removeView(srv);
+        FloatViewHelper.INSTANCE.showFloatView(this, srv, 0, 0, srv.getWidth(), srv.getHeight());
+    }
+
+    private void closeFloatSrv() {
+        showFloat = false;
+        fl.addView(srv);
+        FloatViewHelper.INSTANCE.closeFloatView(srv);
     }
 
     /**
@@ -365,7 +396,10 @@ public class IjkMainActivity extends AppCompatActivity {
         prepared = false;
         try {
             ijkMediaPlayer.reset();
-            initIjkPlayer();
+            IjkUtil.initIjk3(ijkMediaPlayer);
+            if (mHolder != null) {
+                mHolder.bindToMediaPlayer(ijkMediaPlayer);
+            }
             if (url == IjkVideoViewActKt.getFileM3u8()) {
 //                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
                 if (ProxyCacheServer.INSTANCE.getMServer() == null) {
@@ -394,7 +428,7 @@ public class IjkMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-//        mSurface.release();
+        if (mSurface != null) mSurface.release();
         ijkMediaPlayer.release();
         mServer.shutdown();
         super.onDestroy();

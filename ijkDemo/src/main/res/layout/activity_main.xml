@@ -15,32 +15,33 @@
     <!--        app:layout_constraintRight_toRightOf="parent"-->
     <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-    <tv.danmaku.ijk.media.player.widget.media.SurfaceRenderView
-        android:id="@+id/srv"
+    <FrameLayout
+        android:id="@+id/fl"
         android:layout_width="match_parent"
         android:layout_height="480dp"
-        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spin_01" />
+        app:layout_constraintTop_toBottomOf="@id/spin_01">
 
-    <SurfaceView
-        android:id="@+id/sv"
-        android:layout_width="match_parent"
-        android:layout_height="480dp"
-        android:visibility="gone"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spin_01" />
+        <tv.danmaku.ijk.media.player.widget.media.SurfaceRenderView
+            android:id="@+id/srv"
+            android:layout_width="match_parent"
+            android:layout_height="480dp"
+            android:visibility="gone" />
 
-    <TextureView
-        android:id="@+id/tv"
-        android:layout_width="match_parent"
-        android:layout_height="480dp"
-        android:visibility="visible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spin_01" />
+        <SurfaceView
+            android:id="@+id/sv"
+            android:layout_width="match_parent"
+            android:layout_height="480dp"
+            android:visibility="gone" />
+
+        <TextureView
+            android:id="@+id/tv"
+            android:layout_width="match_parent"
+            android:layout_height="480dp"
+            android:visibility="visible" />
+
+    </FrameLayout>
 
     <Spinner
         android:id="@+id/spin"

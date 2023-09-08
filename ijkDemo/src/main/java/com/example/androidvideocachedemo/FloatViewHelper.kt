@@ -81,7 +81,8 @@ object FloatViewHelper {
 
     fun closeFloatView(view: View) {
         val windowManager =
-        app!!.getSystemService(WINDOW_SERVICE) as? WindowManager
+//        app!!.getSystemService(WINDOW_SERVICE) as? WindowManager
+            view.context.getSystemService(WINDOW_SERVICE) as? WindowManager
         windowManager?.apply {
             removeView(view)
         }

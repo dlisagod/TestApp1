@@ -253,13 +253,13 @@ public class IjkMainActivity extends AppCompatActivity {
     private void showFloatSrv() {
         showFloat = true;
         fl.removeView(srv);
-        FloatViewHelper.INSTANCE.showFloatView(this, srv, 0, 0, srv.getWidth(), srv.getHeight());
+        FloatViewHelper.INSTANCE.showFloatView(this, srv, 0, 0, 320, 180);
     }
 
     private void closeFloatSrv() {
         showFloat = false;
-        fl.addView(srv);
         FloatViewHelper.INSTANCE.closeFloatView(srv);
+        fl.addView(srv);
     }
 
     /**

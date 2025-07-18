@@ -1104,7 +1104,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                 }
                 if (mediaDataSource != null) {
                     ijkMediaPlayer = new IjkMediaPlayer();
-                    IjkUtil.initIjk3(ijkMediaPlayer);
+                    IjkUtil.initIjk3(ijkMediaPlayer, -1);
                 }
                 mediaPlayer = ijkMediaPlayer;
             }

@@ -13,21 +13,29 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.danikula.videocache.CacheListener;
 import com.danikula.videocache.HttpProxyCacheServer;
+import com.example.androidvideocachedemo.util.CalUtil;
+import com.example.androidvideocachedemo.util.FloatViewHelper;
+import com.example.androidvideocachedemo.util.IjkTrackInfoWithIdx;
+import com.example.androidvideocachedemo.util.ProxyCacheServer;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,11 +75,23 @@ public class IjkMainActivity extends AppCompatActivity {
     private final String[] videos = IjkVideoViewActKt.getVideos();
     HttpProxyCacheServer mServer;
 
+    protected void hideVirtualBtn() {
+        final Window window = this.getWindow();
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        window.getDecorView().setOnSystemUiVisibilityChangeListener((View.OnSystemUiVisibilityChangeListener) (new View.OnSystemUiVisibilityChangeListener() {
+            public final void onSystemUiVisibilityChange(int it) {
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }));
+    }
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        hideVirtualBtn();
         this.setContentView(R.layout.activity_main);
-        checkPermission();
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        checkPermission();
 //        initSurfaceTexture();
 //        initSurface2();
         initSurfaceRender();
@@ -83,6 +103,9 @@ public class IjkMainActivity extends AppCompatActivity {
     }
 
     private FrameLayout fl;
+
+    private Button btnMediaCodec;
+    private TextView tvSpeed;
 
     private void initClick() {
         fl = findViewById(R.id.fl);
@@ -103,6 +126,13 @@ public class IjkMainActivity extends AppCompatActivity {
             else if (ijkMediaPlayer.isPlayable()) ijkMediaPlayer.start();
 //            }
         });
+        tvSpeed = findViewById(R.id.tv_speed);
+        btnMediaCodec = findViewById(R.id.btn_media_code);
+        btnMediaCodec.setOnClickListener(v -> {
+            changeMediaCodec();
+            updateMediaCodeText();
+        });
+        updateMediaCodeText();
     }
 
     private void changeProxyEnable() {
@@ -135,6 +165,28 @@ public class IjkMainActivity extends AppCompatActivity {
             checkPermission();
         }
     }
+
+    private String TAG = this.getClass().getName();
+
+    private CacheListener cacheListener = new CacheListener() {
+        @Override
+        public void onCacheAvailable(File cacheFile, String url, int percentsAvailable, boolean percentChange, long speedPerSecond) {
+            if (speedPerSecond < 0) {
+//                tvSpeed.setVisibility(View.GONE);
+//                tvSpeed.setText("--");
+            } else {
+                if (percentsAvailable == 100) {
+                    tvSpeed.setVisibility(View.GONE);
+                } else {
+                    tvSpeed.setVisibility(View.VISIBLE);
+                }
+                String sp = CalUtil.getSizeByByte(speedPerSecond);
+                tvSpeed.setText(sp + "/s");
+            }
+//            if (percentChange)
+//                Log.i(TAG, "onCacheAvailable " + "cacheFile:" + cacheFile.getAbsolutePath() + " url:" + url + " percentsAvailable:" + percentsAvailable + " percentChange:" + percentChange + " speedPerSecond:" + CalUtil.calMBytes(speedPerSecond));
+        }
+    };
 
     /**
      * 初始化边下边播的代理缓存
@@ -181,6 +233,13 @@ public class IjkMainActivity extends AppCompatActivity {
 
             }
         });
+        ijkMediaPlayer.setLooping(true);
+        ijkMediaPlayer.setOnCompletionListener(new IMediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(IMediaPlayer mp) {
+//                mp.seekTo(0);
+            }
+        });
     }
 
     private void initSurface2() {
@@ -212,33 +271,63 @@ public class IjkMainActivity extends AppCompatActivity {
     }
 
     private IRenderView.ISurfaceHolder mHolder;
-
-    SurfaceRenderView srv;
+    SurfaceRenderView srv1;
 
     private void initSurfaceRender() {
         TextureView mTextureView = findViewById(R.id.tv);
         mTextureView.setVisibility(View.GONE);
         SurfaceView sv = findViewById(R.id.sv);
         sv.setVisibility(View.GONE);
-        srv = findViewById(R.id.srv);
-        srv.setVisibility(View.VISIBLE);
-        srv.addRenderCallback(new IRenderView.IRenderCallback() {
+        srv1 = findViewById(R.id.srv);
+        srv1.setVisibility(View.VISIBLE);
+        srv1.addRenderCallback(new IRenderView.IRenderCallback() {
             @Override
             public void onSurfaceCreated(IRenderView.ISurfaceHolder holder, int width, int height) {
                 mHolder = holder;
-                holder.bindToMediaPlayer(ijkMediaPlayer);
+                if (!showFloat)
+                    holder.bindToMediaPlayer(ijkMediaPlayer);
             }
 
             @Override
             public void onSurfaceChanged(IRenderView.ISurfaceHolder holder, int format, int width, int height) {
                 mHolder = holder;
-                holder.bindToMediaPlayer(ijkMediaPlayer);
+                if (!showFloat)
+                    holder.bindToMediaPlayer(ijkMediaPlayer);
             }
 
             @Override
             public void onSurfaceDestroyed(IRenderView.ISurfaceHolder holder) {
                 mHolder = null;
-                holder.bindToMediaPlayer(null);
+//                holder.bindToMediaPlayer(null);
+            }
+        });
+    }
+
+    private IRenderView.ISurfaceHolder mHolder2;
+    SurfaceRenderView srv2;
+
+    private void initSrv2() {
+        if (srv2 != null) return;
+        srv2 = new SurfaceRenderView(this);
+        srv2.addRenderCallback(new IRenderView.IRenderCallback() {
+            @Override
+            public void onSurfaceCreated(IRenderView.ISurfaceHolder holder, int width, int height) {
+                mHolder2 = holder;
+                if (showFloat)
+                    holder.bindToMediaPlayer(ijkMediaPlayer);
+            }
+
+            @Override
+            public void onSurfaceChanged(IRenderView.ISurfaceHolder holder, int format, int width, int height) {
+                mHolder2 = holder;
+                if (showFloat)
+                    holder.bindToMediaPlayer(ijkMediaPlayer);
+            }
+
+            @Override
+            public void onSurfaceDestroyed(IRenderView.ISurfaceHolder holder) {
+                mHolder2 = null;
+//                holder.bindToMediaPlayer(null);
             }
         });
     }
@@ -252,14 +341,17 @@ public class IjkMainActivity extends AppCompatActivity {
 
     private void showFloatSrv() {
         showFloat = true;
-        fl.removeView(srv);
-        FloatViewHelper.INSTANCE.showFloatView(this, srv, 0, 0, 320, 180);
+//        fl.removeView(srv1);
+        initSrv2();
+        if (mHolder2 != null) mHolder2.bindToMediaPlayer(ijkMediaPlayer);
+        FloatViewHelper.INSTANCE.showFloatView(this, srv2, 0, 0, 320, 180);
     }
 
     private void closeFloatSrv() {
         showFloat = false;
-        FloatViewHelper.INSTANCE.closeFloatView(srv);
-        fl.addView(srv);
+        FloatViewHelper.INSTANCE.closeFloatView(srv2);
+        if (mHolder != null) mHolder.bindToMediaPlayer(ijkMediaPlayer);
+//        fl.addView(srv1);
     }
 
     /**
@@ -382,9 +474,32 @@ public class IjkMainActivity extends AppCompatActivity {
      * @param url
      */
     private void prepareByProxy(String url) {
+        mServer.unregisterCacheListener(cacheListener);
+        mServer.registerCacheListener(cacheListener, url);
         String proxyUrl = mServer.getProxyUrl(url);
+        Log.i(TAG, String.format("prepareByProxy url:%s, proxyUrl:%s", url, proxyUrl));
         prepare(proxyUrl);
 //        prepare(url);
+    }
+
+    private int mediaCodec = IjkUtil.CODEC_HARD_WARE;
+
+    private void changeMediaCodec() {
+        if (mediaCodec == IjkUtil.CODEC_HARD_WARE) {
+            mediaCodec = IjkUtil.CODEC_SOFT_WARE;
+            IjkUtil.initIjk3(ijkMediaPlayer, mediaCodec);
+        } else {
+            mediaCodec = IjkUtil.CODEC_HARD_WARE;
+            IjkUtil.initIjk3(ijkMediaPlayer, mediaCodec);
+        }
+    }
+
+    private void updateMediaCodeText() {
+        if (mediaCodec == IjkUtil.CODEC_HARD_WARE) {
+            btnMediaCodec.setText("正在使用硬件解码");
+        } else {
+            btnMediaCodec.setText("正在使用软件解码");
+        }
     }
 
     /**
@@ -396,24 +511,24 @@ public class IjkMainActivity extends AppCompatActivity {
         prepared = false;
         try {
             ijkMediaPlayer.reset();
-            IjkUtil.initIjk3(ijkMediaPlayer);
+            IjkUtil.initIjk3(ijkMediaPlayer, mediaCodec);
             if (mHolder != null) {
                 mHolder.bindToMediaPlayer(ijkMediaPlayer);
             }
-            if (url == IjkVideoViewActKt.getFileM3u8()) {
-//                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
-                if (ProxyCacheServer.INSTANCE.getMServer() == null) {
-                    ProxyCacheServer.INSTANCE.initProxy(this);
-                }
-                ProxyCacheServer.INSTANCE.preCacheKey();
-//                String urlKey = mServer.getProxyUrl(ProxyCacheServer.INSTANCE.getKeyUrl());
-//                Log.d(tag, "proxy urlKey:" + urlKey);
-            }
-            if (url == IjkVideoViewActKt.getFileMpgEnc()) {
-                ijkMediaPlayer.setDataSource(new DescryFileMediaSource(url));
-                ijkMediaPlayer.prepareAsync();
-                return;
-            }
+//            if (url == IjkVideoViewActKt.getFileM3u8()) {
+////                ijkMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(url), null);
+//                if (ProxyCacheServer.INSTANCE.getMServer() == null) {
+//                    ProxyCacheServer.INSTANCE.initProxy(this);
+//                }
+//                ProxyCacheServer.INSTANCE.preCacheKey();
+////                String urlKey = mServer.getProxyUrl(ProxyCacheServer.INSTANCE.getKeyUrl());
+////                Log.d(tag, "proxy urlKey:" + urlKey);
+//            }
+//            if (url == IjkVideoViewActKt.getFileMpgEnc()) {
+//                ijkMediaPlayer.setDataSource(new DescryFileMediaSource(url));
+//                ijkMediaPlayer.prepareAsync();
+//                return;
+//            }
 //            else
             ijkMediaPlayer.setDataSource(url);
 //            ijkMediaPlayer.setDataSource("https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4");

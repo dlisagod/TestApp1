@@ -12,6 +12,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,6 +24,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.danikula.videocache.HttpProxyCacheServer;
+import com.example.androidvideocachedemo.util.DescryFileMediaSource;
+import com.example.androidvideocachedemo.util.M3u8Util;
+import com.example.androidvideocachedemo.util.PermissionUtil;
+import com.example.androidvideocachedemo.util.ProxyCacheServer;
+import com.example.androidvideocachedemo.util.TrackInfoWithIdx;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        hideVirtualBtn();
         checkPermission();
         initSurface2();
         initMediaPlayer();
@@ -65,6 +74,16 @@ public class MainActivity extends AppCompatActivity {
         initClick();
         checkProxyEnable();
         testM3u8();
+    }
+
+    protected void hideVirtualBtn() {
+        final Window window = this.getWindow();
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        window.getDecorView().setOnSystemUiVisibilityChangeListener((View.OnSystemUiVisibilityChangeListener)(new View.OnSystemUiVisibilityChangeListener() {
+            public final void onSystemUiVisibilityChange(int it) {
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }));
     }
 
     private void testM3u8() {
@@ -107,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkPermission() {
+        if (PermissionUtil.INSTANCE.initManagerExternal(this, null)) return;
+
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -216,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = videos[position];
+//                prepare("/storage/emulated/0/ldt/aivideo/左右徘徊.mov");
                 if (enable) prepareByProxy(url);
                 else prepare(url);
             }

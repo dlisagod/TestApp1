@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -13,9 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.danikula.videocache.HttpProxyCacheServer
 import com.example.androidvideocachedemo.databinding.ActIjkVideoViewBinding
+import com.example.androidvideocachedemo.util.DescryFileMediaSource
+import com.example.androidvideocachedemo.util.IjkTrackInfoWithIdx
+import com.example.androidvideocachedemo.util.ProxyCacheServer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.misc.ITrackInfo
 import tv.danmaku.ijk.media.player.widget.media.AndroidMediaController
+import tv.danmaku.ijk.media.player.widget.media.IjkVideoView
 
 /**
  * @create zhl
@@ -37,21 +42,24 @@ val fileM3u8_3 =
     Environment.getExternalStorageDirectory().absolutePath + "/download/910453.应用数据路径.m3u8"
 val fileM3u8_4 = "/data/data/com.example.ijkdemo3/cache/910453.应用数据路径.m3u8"
 val fileM3u8_5 = "/data/data/com.example.ijkdemo3/cache/910453.nokey.m3u8"
+
 val videos = arrayOf(
+    "https://data.360guoxue.com/18000/AI/video/user/1/1729577401730.mp4",
     "https://readingpavilion.oss-cn-beijing.aliyuncs.com/ALIOSS_IMG_/1596784890000.mp4",
-    fileMpgEnc,
-    fileM3u8,
-    fileM3u8_1,
-    fileM3u8_2,
-    fileM3u8_3,
-    fileM3u8_4,
-    fileM3u8_5,
+    "http://117.21.14.240:8888/music/852799.MPG",
+    "http://117.21.14.240:8888/dvd1/972566.mpg",
     "https://data.360guoxue.com/18000/Calligraphy/test/910453/910453.m3u8",
-    "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8",
-    "http://183.6.57.249:8888/music/1090614.MPG",
-    "http://183.6.57.249:8888/music/1065799.MPG",
-    "http://183.6.57.249:8888/music/1169378.MPG",
-    "http://183.6.57.249:8888/music/1094665.MPG"
+    "https://data.360guoxue.com/18000/Ldt/video/1/js1/13/13.m3u8",
+    "http://117.21.14.242:8888/ktv/0a915678574400412bb6ae6dc66611f4/0a915678574400412bb6ae6dc66611f4.m3u8",
+    "http://117.21.14.242:8888/ktv/100430/100430.m3u8",
+    "http://117.21.14.242:8888/ktv/972566/972566.m3u8",
+//    fileMpgEnc,
+//    fileM3u8,
+//    fileM3u8_1,
+//    fileM3u8_2,
+//    fileM3u8_3,
+//    fileM3u8_4,
+//    fileM3u8_5,
 )
 
 class IjkVideoViewAct : AppCompatActivity() {
@@ -75,6 +83,8 @@ class IjkVideoViewAct : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vb = ActIjkVideoViewBinding.inflate(layoutInflater)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+//        hideVirtualBtn()
         setContentView(vb.root)
         checkPermission()
         initProxy()
@@ -83,6 +93,8 @@ class IjkVideoViewAct : AppCompatActivity() {
     }
 
     private fun initVideoView() {
+        vb.videoView.setRender(IjkVideoView.RENDER_TEXTURE_VIEW)
+//        vb.videoView.setRender(IjkVideoView.RENDER_SURFACE_VIEW)
         vb.videoView.apply {
             setMediaController(AndroidMediaController(this@IjkVideoViewAct, false))
             setHudView(vb.hudView)
@@ -134,6 +146,7 @@ class IjkVideoViewAct : AppCompatActivity() {
                 val url = videos[position]
 //                prepareByProxy(url);
                 prepare(url)
+//                prepare("/storage/emulated/0/ldt/aivideo/左右徘徊.mov")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -211,6 +224,19 @@ class IjkVideoViewAct : AppCompatActivity() {
     private fun prepareByProxy(url: String) {
         val proxyUrl = mServer!!.getProxyUrl(url)
         prepare(proxyUrl)
+    }
+
+    /**
+     * 滑动屏幕 可重新显示出来
+     */
+    protected open fun hideVirtualBtn() {
+        val window = window
+        window!!.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
+        window.decorView.setOnSystemUiVisibilityChangeListener {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
+        }
     }
 
 
